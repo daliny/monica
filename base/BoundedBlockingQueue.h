@@ -21,7 +21,7 @@ public:
   void push(const T& value) {
     {
       std::unique_lock<std::mutex> lk(mutex_);
-      notFull_.wait(lk, [this]{ queue_.size() != size_ });
+      notFull_.wait(lk, [this]{ return queue_.size() != size_; });
       assert(queue_.size() != size_);
       queue_.push(value);
     }
@@ -38,7 +38,7 @@ public:
     notEmpty_.notify_one();
   }
 
-  void pop(T& value) {
+  void wait_and_pop(T& value) {
     std::unique_lock<std::mutex> lk(mutex_);
     notEmpty_.wait(lk, [this]{ return !queue_.empty(); });
     assert(!queue_.empty());
@@ -47,11 +47,11 @@ public:
     notFull_.notify_one();
   }
 
-  shared_ptr<T> pop() {
+  std::shared_ptr<T> wait_and_pop() {
     std::unique_lock<std::mutex> lk(mutex_);
     notEmpty_.wait(lk, [this]{ return !queue_.empty(); });
     assert(!queue_.empty());
-    shared_ptr<T> res = make_shared(std::move(queue_.front()));
+    std::shared_ptr<T> res = std::make_shared<T>(std::move(queue_.front()));
     queue_.pop();
     notFull_.notify_one();
 
