@@ -15,6 +15,8 @@ namespace monica {
       typedef std::function<void()> task_type;
       ThreadPool(size_t sizeOfqueue);
       ~ThreadPool();
+      ThreadPool(const ThreadPool&) = delete;
+      ThreadPool& operator=(const ThreadPool&) = delete;
       void start(size_t sizeOfpool);
       void stop();
       void put_task(task_type&& task);

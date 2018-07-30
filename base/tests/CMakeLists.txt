@@ -17,3 +17,9 @@ target_link_libraries(ThreadPool_test monica_base)
 
 add_executable(Socket_test socket_test.cc)
 target_link_libraries(Socket_test monica_base)
+
+add_executable(Acceptor_test acceptor_test.cc)
+target_link_libraries(Acceptor_test monica_base)
+
+add_executable(Epoll_test epoll_test.cc)
+target_link_libraries(Epoll_test monica_base)

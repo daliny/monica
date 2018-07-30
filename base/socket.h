@@ -14,6 +14,8 @@ namespace monica {
 
     Socket(const char* host=nullptr, const char* port=nullptr, Socket::Ai *hints = nullptr);
     ~Socket(); // 判断res是否为空，否则delete
+    Socket(const Socket&) = delete;
+    Socket& operator=(const Socket&) = delete;
     void getaddrinfo();
     void freeaddrinfo();
     int  create_socket();

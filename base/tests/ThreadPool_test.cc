@@ -33,5 +33,5 @@ int main() {
     pool.put_task(std::bind(&Test::handle, test));
   }
 
-  pool.stop();
+  //pool.stop();
 }

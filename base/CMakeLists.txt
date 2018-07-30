@@ -7,7 +7,8 @@ add_compile_options(-g -std=c++11)
 # 添加子目录
 ADD_SUBDIRECTORY(tests)
 # 指定文件位置
-SET(LIBMONICA_BASE ThreadPool.cc socket.cc error.cc)
+SET(LIBMONICA_BASE ThreadPool.cc error.cc socket.cc acceptor.cc epoll.cc)
 # 添加静态库
 ADD_LIBRARY(monica_base ${LIBMONICA_BASE})
+#ADD_LIBRARY(error error.cc)
 TARGET_LINK_LIBRARIES(monica_base pthread)
