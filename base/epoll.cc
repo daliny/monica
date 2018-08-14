@@ -18,8 +18,11 @@ void Epoll::create() {
   }
 }
 
-void Epoll::ctrl(int op, int fd, Epoll::Ev* event) {
-  if(::epoll_ctl(epfd, op, fd, event) == -1) {
+void Epoll::ctrl(int op, int fd, uint32_t events) {
+  struct epoll_event event;
+  event.events = events;
+  event.data.fd = fd;
+  if(::epoll_ctl(epfd, op, fd, &event) == -1) {
     ep_errno = errno;
     linux_error("Epoll::ctrl: ", ep_errno); // 需要改进，不同错误处理
   }

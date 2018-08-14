@@ -12,7 +12,8 @@ SET(LIBMONICA_BASE ThreadPool.cc
                    socket.cc 
                    acceptor.cc 
                    epoll.cc 
-                   TcpConnection.cc)
+                   TcpConnection.cc
+		   Handle.cc)
 # 添加静态库
 ADD_LIBRARY(monica_base ${LIBMONICA_BASE})
 #ADD_LIBRARY(error error.cc)

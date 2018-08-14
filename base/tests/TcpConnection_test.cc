@@ -13,29 +13,33 @@ class Test {
 
     void handle() {
       char buf[1024];
-      int fd = tcp_.getfd();
-      printf("The %lu thread get a connected fd: %d\n", 
+      while(true) {
+       
+        int fd = tcp_.getfd();
+        printf("The %lu thread get a connected fd: %d\n", 
                    std::this_thread::get_id(), fd);
-      
-      for(;;) {
-        int nread = 0;
-        if((nread = read(fd, buf, 1024)) == -1) {
-          if(errno == EAGAIN) {
-            continue;
+        for(;;) {
+          int nread = 0;
+          if((nread = read(fd, buf, 1024)) == -1) {
+            if(errno == EAGAIN) {
+              //continue;
+              tcp_.ctrlfd(EPOLL_CTL_MOD, fd, EPOLLOUT|EPOLLET|EPOLLONESHOT);
+              break;
+            }
+            monica::linux_error("read error ", errno);
           }
-          monica::linux_error("read error ", errno);
-        }
-        if(nread == 0) { 
-          close(fd);
-          break;
-        }
-        else if(write(fd, buf, nread) == -1) {
-          monica::linux_error("write error ", errno);
-        }
-      }
-      /*
+          if(nread == 0) { 
+            close(fd);
+            break;
+          }
+          else if(write(fd, buf, nread) == -1) {
+            monica::linux_error("write error ", errno);
+          }
+        }/*
       int nread = 0;
       if((nread = read(fd, buf, 1024)) == -1) {
+        if(errno == EAGAIN)
+          return;
         monica::linux_error("read error ", errno);
       }
 
@@ -48,9 +52,10 @@ class Test {
       }
 
       struct epoll_event event;
-      event.events = EPOLLOUT|EPOLLIN|EPOLLHUP;
+      event.events = EPOLLOUT|EPOLLIN|EPOLLHUP|EPOLLONESHOT;
       event.data.fd = fd;
-      tcp_.addfd(fd, &event);*/
+      tcp_.ctrlfd(EPOLL_CTL_MOD, fd, &event);*/
+      }
     }
 
     void create(const char* host, const char* port) {
@@ -66,9 +71,6 @@ class Test {
 
 int main(int argc, char* argv[])
 {
-  const size_t BUF_SIZE = 1024;
-  char buf[BUF_SIZE];
-
   if(argc != 2) {
     fprintf(stderr, "Usage: %s port\n", argv[0]);
     exit(EXIT_FAILURE);
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
   monica::ThreadPool pool_(10);
   pool_.start(4);
 
-  Test test(10);
+  Test test(5);
   test.create(nullptr, argv[1]);  
   for(int i = 0; i < 10; ++i) {
     pool_.put_task(std::bind(&Test::handle, &test));

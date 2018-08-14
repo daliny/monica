@@ -35,11 +35,8 @@ int main(int argc, char* argv[])
   printf("Test Start\n");
   monica::Epoll epoll_(10);
   struct epoll_event events[10];
-  struct epoll_event event;
-  event.events = EPOLLIN;
-  event.data.fd = sfd;
   epoll_.create();
-  epoll_.ctrl(EPOLL_CTL_ADD, sfd, &event);
+  epoll_.ctrl(EPOLL_CTL_ADD, sfd, EPOLLIN);
 
   for(;;) {
     int nready = epoll_.wait(events, -1);
@@ -47,10 +44,8 @@ int main(int argc, char* argv[])
       int fd = events[i].data.fd;
       if(fd == sfd) {
         int afd = acceptor_.accept();
-        event.events = EPOLLOUT|EPOLLIN|EPOLLHUP|EPOLLET;
-        event.data.fd = afd;
         fcntl(afd, F_SETFL, O_NONBLOCK); // 注意要把afd设为非阻塞
-        epoll_.ctrl(EPOLL_CTL_ADD, afd, &event);
+        epoll_.ctrl(EPOLL_CTL_ADD, afd, EPOLLOUT|EPOLLIN|EPOLLHUP|EPOLLET);
       } else {
         int nread = -1;
         if((nread = read(fd, buf, BUF_SIZE)) == -1) {

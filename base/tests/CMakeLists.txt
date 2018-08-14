@@ -26,3 +26,6 @@ target_link_libraries(Epoll_test monica_base)
 
 add_executable(TcpConnection_test TcpConnection_test.cc)
 target_link_libraries(TcpConnection_test monica_base)
+
+add_executable(Server_Handle_test Server_Handle_test.cc)
+target_link_libraries(Server_Handle_test monica_base)

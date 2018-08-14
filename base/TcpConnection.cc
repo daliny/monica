@@ -36,11 +36,8 @@ void TcpConnection::create(const char* host, const char* port) {
 
 void TcpConnection::eventloop() {
   struct epoll_event events[events_size];
-  struct epoll_event event;
-  event.events = EPOLLIN;
-  event.data.fd = listenfd;
   poll_.create();
-  poll_.ctrl(EPOLL_CTL_ADD, listenfd, &event);
+  poll_.ctrl(EPOLL_CTL_ADD, listenfd, EPOLLIN);
 
   while(true) {
     int nready = poll_.wait(events, -1);
@@ -48,12 +45,11 @@ void TcpConnection::eventloop() {
       int fd = events[i].data.fd;
       if(fd == listenfd) {
         int connfd = acceptor->accept();
-        event.events = EPOLLOUT|EPOLLIN|EPOLLHUP|EPOLLET;
-        event.data.fd = connfd;
+        //event.events = EPOLLOUT|EPOLLIN|EPOLLHUP|EPOLLET|EPOLLONESHOT;
         fcntl(connfd, F_SETFL, O_NONBLOCK);
-        poll_.ctrl(EPOLL_CTL_ADD, connfd, &event);
+        poll_.ctrl(EPOLL_CTL_ADD, connfd, EPOLLOUT|EPOLLET|EPOLLONESHOT);
       } else {
-        poll_.ctrl(EPOLL_CTL_DEL, fd, nullptr); // 避免数据竞争
+        //poll_.ctrl(EPOLL_CTL_DEL, fd, nullptr); // 避免数据竞争
         queue_.push(fd);
       }
     }
@@ -65,6 +61,6 @@ int TcpConnection::getfd() {
   queue_.wait_and_pop(fd);
   return fd;
 }
-void TcpConnection::addfd(int fd, struct epoll_event *event) {
-  poll_.ctrl(EPOLL_CTL_ADD, fd, event);
+void TcpConnection::ctrlfd(int op, int fd, uint32_t event) {
+  poll_.ctrl(op, fd, event);
 }

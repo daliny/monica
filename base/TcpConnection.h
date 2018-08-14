@@ -16,7 +16,7 @@ namespace monica {
       void create(const char* host, const char* port);
       void eventloop();
       int  getfd();
-      void addfd(int fd, struct epoll_event *event);
+      void ctrlfd(int op, int fd, uint32_t event);
     private:
       int listenfd;
       int backlog_; // 监听队列大小

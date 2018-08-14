@@ -13,8 +13,7 @@ namespace monica {
       Epoll(const Epoll&) = delete;
       Epoll& operator=(const Epoll&) = delete;
       void create();
-      void ctrl(int op, int fd);
-      void ctrl(int op, int fd, Ev* event);
+      void ctrl(int op, int fd, uint32_t event);
       int wait(Ev* events, int timeout);
     private:
       int epfd;
